@@ -1,0 +1,23 @@
+{
+    "name": "School Project NFT #1",
+    "description": "This is a test NFT for my school project on blockchain and IPFS",
+    "image": "ipfs://bafybeibbw5uwppsrijcfpj7w6b7q6g66iqzuy5tqwnrv5udcl2ku2vztky",
+    "attributes": [
+      {
+        "trait_type": "Background",
+        "value": "Blue"
+      },
+      {
+        "trait_type": "Subject",
+        "value": "Computer Science"
+      },
+      {
+        "trait_type": "Grade",
+        "value": "A+"
+      },
+      {
+        "trait_type": "Year",
+        "value": "2025"
+      }
+    ]
+  }

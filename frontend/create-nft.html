@@ -1,0 +1,1891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create NFT - NFT Marketplace</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(90deg, #4F46E5, #7C3AED);
+        }
+        .file-upload-container {
+            border: 2px dashed #d1d5db;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .file-upload-container:hover {
+            border-color: #4F46E5;
+        }
+        .file-upload-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .preview-image {
+            max-height: 300px;
+            object-fit: contain;
+        }
+        .modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Modal Box */
+.modal-content {
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 400px;
+  margin: 15% auto;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.4s ease-out;
+}
+
+/* Heading */
+.modal-content h2 {
+  color: #7C3AED;
+  margin-bottom: 10px;
+  font-size: 24px;
+}
+
+/* Paragraph */
+.modal-content p {
+  color: #555;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+/* OK Button */
+.modal-ok-btn {
+  padding: 10px 20px;
+  background-color: #7C3AED;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.modal-ok-btn:hover {
+  background-color: #7C3AED;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; } to { opacity: 1; }
+}
+@keyframes slideIn {
+  from { transform: translateY(-20px); opacity: 0; } 
+  to { transform: translateY(0); opacity: 1; }
+}
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <!-- Navigation -->
+    <nav class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-2">
+                    <a href="Home.html" class="flex items-center space-x-2">
+                        <i class="fas fa-palette text-2xl"></i>
+                        <span class="text-2xl font-bold">NFT Marketplace</span>
+                    </a>
+                </div>
+                 <div class="hidden md:flex space-x-8">
+                    <a href="Home.html" class="hover:text-purple-200 transition-colors duration-300 flex items-center">
+                        <i class="fas fa-compass mr-2"></i>Explore
+                    </a>
+                    <a href="create-nft.html" class="hover:text-purple-200 transition-colors duration-300 flex items-center">
+                        <i class="fas fa-paint-brush mr-2"></i>Create
+                    </a>
+                    <a href="my-collection.html" class="hover:text-purple-200 transition-colors duration-300 flex items-center">
+                        <i class="fas fa-layer-group mr-2"></i>My Collection
+                    </a>
+                     <a href="auction-market.html" class="hover:text-purple-200 transition-colors duration-300 flex items-center">
+                      <i class="fas fa-gavel mr-2"></i>Auction
+                  </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="connectWalletBtn" class="bg-white text-indigo-600 font-medium py-2 px-6 rounded-full hover:bg-purple-100 transition duration-300 flex items-center space-x-2 pulse shadow-lg">
+                        <i class="fas fa-wallet mr-2"></i><span id="walletBtnText">Connect Wallet</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Create NFT Form -->
+    <div class="container mx-auto px-4 py-12">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-3xl md:text-4xl font-bold mb-8 text-gray-800">Create New NFT</h1>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <form id="createNFTForm">
+                    <!-- File Upload -->
+                    <div class="mb-8">
+                        <label class="block text-gray-700 font-medium mb-2">Upload File *</label>
+                        <p class="text-gray-500 text-sm mb-4">Supported file types: JPG, PNG, GIF, SVG, MP4, WEBM, MP3, WAV. Max size: 100 MB</p>
+                        
+                        <div id="fileUploadContainer" class="file-upload-container rounded-lg h-64 flex flex-col items-center justify-center">
+                            <input type="file" id="fileUpload" class="file-upload-input" accept="image/*,video/*,audio/*" required>
+                            <div id="uploadPlaceholder" class="text-center">
+                                <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
+                                <p class="text-gray-600">Drag and drop your file here, or click to browse</p>
+                                <p class="text-gray-400 text-sm mt-2">Max size: 100 MB</p>
+                            </div>
+                            <div id="previewContainer" class="hidden w-full h-full flex items-center justify-center">
+                                <img id="previewImage" class="preview-image hidden" alt="Preview">
+                                <video id="previewVideo" class="preview-image hidden" controls></video>
+                                <audio id="previewAudio" class="hidden w-full mt-4" controls></audio>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- NFT Details -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <!-- Name -->
+                        <div>
+                            <label for="nftName" class="block text-gray-700 font-medium mb-2">Name *</label>
+                            <input type="text" id="nftName" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Item name" required>
+                        </div>
+                        
+                        <!-- External Link -->
+                        
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="mb-6">
+                        <label for="description" class="block text-gray-700 font-medium mb-2">Description</label>
+                        <textarea id="description" rows="4" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Provide a detailed description of your item"></textarea>
+                        <p class="text-xs text-gray-500 mt-1">The description will be included on the item's detail page</p>
+                    </div>
+                    
+                    <!-- Royalties -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">Royalties</h3>
+                        <p class="text-sm text-gray-500 mb-3">Earn 10% of the sale price each time your NFT is sold</p>
+                        
+                        <div class="relative">
+                            <input type="number" id="royalty" min="0" max="10" class="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="10" value="10">
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500">%</span>
+                            </div>
+                        </div>
+                        <!-- <p class="text-xs text-gray-500 mt-1">Maximum royalty is 15%</p> -->
+                    </div>
+                    
+                    <!-- Submit & Preview -->
+                    <div class="flex flex-col md:flex-row gap-4 mt-10">
+                        <button type="button" id="previewBtn" class="py-3 px-6 rounded-full border-2 border-indigo-600 text-indigo-600 font-bold hover:bg-indigo-50 transition duration-300">Preview</button>
+                        <button type="submit" id="createBtn" class="py-3 px-6 rounded-full bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">Create NFT</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+
+    <!-- Modal for Preview -->
+    <div id="previewModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-xl p-6 max-w-lg w-full max-h-90vh overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">NFT Preview</h3>
+                <button id="closePreviewBtn" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="previewContent" class="flex flex-col items-center">
+                <!-- Preview content will be inserted here -->
+            </div>
+        </div>
+    </div>
+    <!-- Mint Success Modal -->
+<div id="mintModal" class="modal">
+  <div class="modal-content">
+    <h2>🎉 NFT Minted Successfully!</h2>
+    <p>Your NFT has been added to the blockchain.</p>
+   <a href="Home.html" id="modalOkBtn" class="modal-ok-btn">OK</a>
+  </div>
+</div>
+
+    <script>
+        // Wallet Connection
+        document.getElementById('connectWalletBtn').addEventListener('click', function() {
+            if (typeof window.ethereum !== 'undefined') {
+                ethereum.request({ method: 'eth_requestAccounts' })
+                .then(accounts => {
+                    const account = accounts[0];
+                    this.textContent = account.slice(0, 6) + '...' + account.slice(-4);
+                    this.classList.add('bg-green-100');
+                    this.classList.add('text-green-600');
+                    
+                    // Enable create button once wallet is connected
+                    document.getElementById('createBtn').disabled = false;
+                })
+                .catch(error => {
+                    console.error("User denied account access");
+                    alert("Connection rejected. Please connect your wallet to create NFTs.");
+                });
+            } else {
+                alert("Ethereum wallet not detected! Please install MetaMask or another wallet provider.");
+            }
+        });
+        // Modified wallet connection functionality
+document.addEventListener('DOMContentLoaded', function() {
+
+
+  const saleTypeSelect = document.getElementById('saleType');
+    const auctionDurationContainer = document.getElementById('auctionDurationContainer');
+    const connectWalletBtn = document.getElementById('connectWalletBtn');
+    const myCollectionLink = document.querySelector('a[href="my-collection.html"]');
+    
+    // Hide My Collection link by default
+    if (myCollectionLink) {
+        myCollectionLink.style.display = 'none';
+    }
+    
+    // Check if user is already connected (from localStorage)
+    const connectedAccount = localStorage.getItem('connectedWalletAccount');
+    if (connectedAccount) {
+        // Update button with account info
+        connectWalletBtn.textContent = connectedAccount.slice(0, 6) + '...' + connectedAccount.slice(-4);
+        connectWalletBtn.classList.add('bg-green-100');
+        connectWalletBtn.classList.add('text-green-600');
+        
+        // Show My Collection link
+        if (myCollectionLink) {
+            myCollectionLink.style.display = 'block';
+        }
+    }
+    
+    // Wallet connection handler
+    connectWalletBtn.addEventListener('click', function() {
+        if (typeof window.ethereum !== 'undefined') {
+            // Request account access
+            ethereum.request({ method: 'eth_requestAccounts' })
+            .then(accounts => {
+                // Connected successfully
+                const account = accounts[0];
+                connectWalletBtn.textContent = account.slice(0, 6) + '...' + account.slice(-4);
+                connectWalletBtn.classList.add('bg-green-100');
+                connectWalletBtn.classList.add('text-green-600');
+                
+                // Store connection in localStorage
+                localStorage.setItem('connectedWalletAccount', account);
+                
+                // Show My Collection link
+                if (myCollectionLink) {
+                    myCollectionLink.style.display = 'block';
+                }
+            document.getElementById('createBtn').disabled = false;
+            })
+            .catch(error => {
+                console.error("User denied account access");
+                alert("Connection rejected. Please connect your wallet to use the marketplace.");
+            });
+        } else {
+            alert("Ethereum wallet not detected! Please install MetaMask or another wallet provider.");
+        }
+    });
+});
+
+        // File Upload Preview
+        const fileUpload = document.getElementById('fileUpload');
+        const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImage = document.getElementById('previewImage');
+        const previewVideo = document.getElementById('previewVideo');
+        const previewAudio = document.getElementById('previewAudio');
+
+        fileUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Hide placeholder, show preview
+            uploadPlaceholder.classList.add('hidden');
+            previewContainer.classList.remove('hidden');
+            
+            // Clear previous previews
+            previewImage.classList.add('hidden');
+            previewVideo.classList.add('hidden');
+            previewAudio.classList.add('hidden');
+            
+            const fileType = file.type.split('/')[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                if (fileType === 'image') {
+                    previewImage.src = e.target.result;
+                    previewImage.classList.remove('hidden');
+                } else if (fileType === 'video') {
+                    previewVideo.src = e.target.result;
+                    previewVideo.classList.remove('hidden');
+                } else if (fileType === 'audio') {
+                    previewAudio.src = e.target.result;
+                    previewAudio.classList.remove('hidden');
+                }
+            };
+            
+            reader.readAsDataURL(file);
+        });
+
+        // Preview Modal
+        const previewModal = document.getElementById('previewModal');
+        const previewBtn = document.getElementById('previewBtn');
+        const closePreviewBtn = document.getElementById('closePreviewBtn');
+        const previewContent = document.getElementById('previewContent');
+
+        previewBtn.addEventListener('click', function() {
+            const name = document.getElementById('nftName').value || 'Untitled NFT';
+            const description = document.getElementById('description').value || 'No description provided';
+            //const price = document.getElementById('price').value || '0';
+            
+            
+            let mediaPreview;
+            if (fileUpload.files.length > 0) {
+                const file = fileUpload.files[0];
+                const fileType = file.type.split('/')[0];
+                
+                if (fileType === 'image') {
+                    mediaPreview = `<img src="${URL.createObjectURL(file)}" alt="${name}" class="mb-4 max-w-full max-h-60 rounded-lg">`;
+                } else if (fileType === 'video') {
+                    mediaPreview = `<video src="${URL.createObjectURL(file)}" class="mb-4 max-w-full max-h-60 rounded-lg" controls></video>`;
+                } else if (fileType === 'audio') {
+                    mediaPreview = `<audio src="${URL.createObjectURL(file)}" class="mb-4 w-full" controls></audio>`;
+                } else {
+                    mediaPreview = `<div class="mb-4 p-12 bg-gray-200 rounded-lg flex items-center justify-center">File Preview Not Available</div>`;
+                }
+            } else {
+                mediaPreview = `<div class="mb-4 p-12 bg-gray-200 rounded-lg flex items-center justify-center">No File Selected</div>`;
+            }
+            
+            // Get properties
+            let propertiesHTML = '';
+            const propertyRows = document.querySelectorAll('.property-row');
+            propertyRows.forEach(row => {
+                const key = row.querySelector('.property-key').value;
+                const value = row.querySelector('.property-value').value;
+              
+            });
+            
+            // Create preview HTML
+            previewContent.innerHTML = `
+                ${mediaPreview}
+                <div class="w-full">
+                    <h2 class="text-2xl font-bold mb-2">${name}</h2>
+                    <p class="text-gray-600 mb-4">${description}</p>
+                   
+                    
+                    
+                    <div class="flex items-center mt-4">
+                        <img src="https://i.pravatar.cc/40" class="w-8 h-8 rounded-full mr-2" alt="Creator">
+                        <span class="text-gray-700">Created by you</span>
+                    </div>
+                </div>
+            `;
+            
+            previewModal.classList.remove('hidden');
+        });
+
+        closePreviewBtn.addEventListener('click', function() {
+            previewModal.classList.add('hidden');
+        });
+
+        // Close modal when clicking outside
+        previewModal.addEventListener('click', function(e) {
+            if (e.target === previewModal) {
+                previewModal.classList.add('hidden');
+            }
+        });
+
+  
+
+const CONTRACT_ADDRESS = "0x896eeE55B5a8783d45D11c4Ad64a5941fAf41934";
+const CONTRACT_ABI = [
+  {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721IncorrectOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "ERC721InsufficientApproval",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "approver",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721InvalidApprover",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721InvalidOperator",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721InvalidOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721InvalidReceiver",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721InvalidSender",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "ERC721NonexistentToken",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableInvalidOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableUnauthorizedAccount",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ReentrancyGuardReentrantCall",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "approved",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "Approval",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "approved",
+          "type": "bool"
+        }
+      ],
+      "name": "ApprovalForAll",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "winner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "AuctionEnded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "bidder",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "BidPlaced",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "bidder",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "BidWithdrawn",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "ListingCancelled",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "seller",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "enum NFTCollection.SaleType",
+          "name": "saleType",
+          "type": "uint8"
+        }
+      ],
+      "name": "NFTListed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "seller",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "buyer",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "name": "NFTSold",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "RoyaltyPaid",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "Transfer",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "activeListings",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "approve",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "asks",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "seller",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "active",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "auctionBids",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "bidders",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "bids",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "buyer",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "active",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "buyNFT",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "cancelListing",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "name": "createAsk",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "createBid",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "endAuction",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getActiveListings",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getApproved",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getBidHistory",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getListing",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "seller",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
+            },
+            {
+              "internalType": "enum NFTCollection.SaleType",
+              "name": "saleType",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "auctionEndTime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "highestBid",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "highestBidder",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "active",
+              "type": "bool"
+            },
+            {
+              "internalType": "uint256",
+              "name": "listingTime",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct NFTCollection.Listing",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "salePrice",
+          "type": "uint256"
+        }
+      ],
+      "name": "getRoyaltyInfo",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "getUserBid",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        }
+      ],
+      "name": "isApprovedForAll",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "isListed",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "startingPrice",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "durationInSeconds",
+          "type": "uint256"
+        }
+      ],
+      "name": "listNFTAuction",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "name": "listNFTFixedPrice",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "listings",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "seller",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "enum NFTCollection.SaleType",
+          "name": "saleType",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "auctionEndTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "highestBid",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "highestBidder",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "active",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "listingTime",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "uri",
+          "type": "string"
+        }
+      ],
+      "name": "mint",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "name",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "ownerOf",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "placeBid",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "salePrice",
+          "type": "uint256"
+        }
+      ],
+      "name": "royaltyInfo",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "safeTransferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "safeTransferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "approved",
+          "type": "bool"
+        }
+      ],
+      "name": "setApprovalForAll",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "uint16",
+          "name": "fraction",
+          "type": "uint16"
+        }
+      ],
+      "name": "setDefaultRoyalty",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "uint16",
+          "name": "fraction",
+          "type": "uint16"
+        }
+      ],
+      "name": "setTokenRoyalty",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes4",
+          "name": "interfaceId",
+          "type": "bytes4"
+        }
+      ],
+      "name": "supportsInterface",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "symbol",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "tokenURI",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalSupply",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdrawBid",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+];
+
+const PINATA_JWT = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI0ZThlMWUzNS04ODFkLTQ3ZDUtYWIwOC0zMTIzNGViOWM5ZTMiLCJlbWFpbCI6ImJ3aXNzYWwwNEBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGluX3BvbGljeSI6eyJyZWdpb25zIjpbeyJkZXNpcmVkUmVwbGljYXRpb25Db3VudCI6MSwiaWQiOiJGUkExIn0seyJkZXNpcmVkUmVwbGljYXRpb25Db3VudCI6MSwiaWQiOiJOWUMxIn1dLCJ2ZXJzaW9uIjoxfSwibWZhX2VuYWJsZWQiOmZhbHNlLCJzdGF0dXMiOiJBQ1RJVkUifSwiYXV0aGVudGljYXRpb25UeXBlIjoic2NvcGVkS2V5Iiwic2NvcGVkS2V5S2V5IjoiMzNiMGYzODg0NmU5ZmFjY2JiNWQiLCJzY29wZWRLZXlTZWNyZXQiOiIyZDZkOTFjYzEwMmNjNDgzYTY1MjRiM2RkMDBiM2FjMzBlNmRkNTFiMDg5OTQwN2Y1MjEyYzM4ZWY0ZGM1OWEwIiwiZXhwIjoxNzc2ODgzNjk0fQ.Qr81DC9LUsfPLh0O8wenq46l_Z9PCGG-aHvso2xRCY0";
+ function showMintSuccessModal() {
+  const modal = document.getElementById("mintModal");
+  modal.style.display = "block";
+
+  document.getElementById("modalOkBtn").onclick = () => {
+    modal.style.display = "none";
+  };
+
+  // Optional: close if clicking outside
+  window.onclick = function(event) {
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  };
+}
+
+document.getElementById('createNFTForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    if (!window.ethereum) return alert("Please install MetaMask");
+
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+    const file = document.getElementById("fileUpload").files[0];
+    if (!file) return alert("Please upload a file");
+
+    // 1. Upload file to IPFS via Pinata
+    const fileData = new FormData();
+    fileData.append("file", file);
+
+    const fileUploadRes = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+        method: "POST",
+        headers: {
+            Authorization: PINATA_JWT
+        },
+        body: fileData
+    });
+  
+    try {
+        const fileJson = await fileUploadRes.json();
+        const fileCID = fileJson.IpfsHash;
+        const fileURI = `ipfs://${fileCID}`;
+        const account = await signer.getAddress();
+
+        // 2. Upload metadata JSON
+        const royaltyPercentage = document.getElementById('royalty').value;
+        const metadata = {
+            name: document.getElementById('nftName').value,
+            description: document.getElementById('description').value,
+            image: fileURI,
+            royalty: royaltyPercentage,
+            creator: account
+        };
+     
+        const metaUploadRes = await fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: PINATA_JWT
+            },
+            body: JSON.stringify(metadata)
+        });
+
+        const metaJson = await metaUploadRes.json();
+        const tokenURI = `ipfs://${metaJson.IpfsHash}`;
+
+        // 3. Mint the NFT
+        const mintTx = await contract.mint(tokenURI);
+        const mintReceipt = await mintTx.wait();
+        
+        // Get the token ID from the mint transaction
+        const tokenId = mintReceipt.events?.find(e => e.event === 'Transfer')?.args?.tokenId?.toString();
+        
+        if (!tokenId) {
+            throw new Error("Could not retrieve token ID from mint transaction");
+        }
+
+        console.log("NFT minted with token ID:", tokenId);
+
+        // 4. Set royalty for the minted NFT (NEW)
+        if (royaltyPercentage && parseFloat(royaltyPercentage) > 0) {
+            // Convert percentage to basis points (e.g., 5% = 500 basis points)
+            const royaltyBasisPoints = Math.floor(parseFloat(royaltyPercentage) * 100);
+            
+            console.log(`Setting royalty: ${royaltyPercentage}% (${royaltyBasisPoints} basis points) for token ${tokenId}`);
+            
+            const royaltyTx = await contract.setTokenRoyalty(tokenId, account, royaltyBasisPoints);
+            await royaltyTx.wait();
+            
+            console.log("Royalty set successfully");
+        }
+
+        showMintSuccessModal();
+        
+        // Store in localStorage to show in Home.html
+        const newNFT = {
+            name: metadata.name,
+            description: metadata.description,
+            image: `https://gateway.pinata.cloud/ipfs/${fileCID}`,
+            creator: account,
+            royalty: metadata.royalty,
+            tokenId: tokenId // Store token ID for reference
+        };
+
+        const current = JSON.parse(localStorage.getItem("nftItems") || "[]");
+        current.unshift(newNFT);
+        localStorage.setItem("nftItems", JSON.stringify(current));
+
+    } catch (error) {
+        console.error("Minting error:", error);
+        alert("Error minting NFT: " + error.message);
+    }
+});
+
+
+
+
+
+
+// Add this function to your create.js file to debug metadata issues
+
+function validateMetadataBeforeUpload(metadata) {
+    console.log("Validating metadata before upload:", metadata);
+    
+    // Check for required fields
+    if (!metadata.name || !metadata.description || !metadata.image) {
+        console.error("Missing required metadata fields!");
+        return false;
+    }
+    
+   
+    console.log("Metadata validation passed!");
+    return true;
+}
+
+
+// Function to save NFT data to createdNFTs collection
+function saveCreatedNFT(nftData) {
+    // Get existing NFTs from localStorage or initialize empty array
+    let nfts = JSON.parse(localStorage.getItem('createdNFTs')) || [];
+    
+    // Add new NFT to the array
+    nfts.unshift(nftData); // Add to beginning to show newest first
+    
+    // Save back to localStorage
+    localStorage.setItem('createdNFTs', JSON.stringify(nfts));
+}
+
+// Function to add the NFT to the marketplace
+function addToMarketplace(nftData) {
+    // Get existing marketplace NFTs
+    let nftItems = JSON.parse(localStorage.getItem('nftItems')) || [];
+    
+    // Create a formatted NFT object that matches the marketplace format
+    const marketplaceNFT = {
+        id: nftData.id,
+        name: nftData.name,
+        image: nftData.image,
+        price: nftData.price,
+        royalty:nftData.royalty,
+        creator: nftData.creator.slice(0, 6), // Just use first 6 chars as username
+        // timeLeft: nftData.saleType === 'auction' ? 
+        //     (nftData.auctionDuration + ' days') : '23h 59m', // Default time or auction duration
+        description: nftData.description
+    };
+    
+    // Add to the beginning of the array so it shows first
+    nftItems.unshift(marketplaceNFT);
+    
+    // Save back to localStorage
+    localStorage.setItem('nftItems', JSON.stringify(nftItems));
+}
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+</body>
+</html>

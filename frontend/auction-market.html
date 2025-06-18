@@ -1,0 +1,2602 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Double Auction NFT Marketplace</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.8.2/web3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary: #e0e7ff;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --purple: #7c3aed;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(90deg, #4F46E5, #7C3AED);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        header {
+            background: linear-gradient(90deg, #4F46E5, #7C3AED);
+            box-shadow: 0 4px 20px rgba(79, 70, 229, 0.3);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Account Info Styling */
+        .account-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .account-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .account-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .account-detail i {
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+
+        /* Main Grid Layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Card Styling */
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--secondary);
+        }
+
+        .card-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 0;
+        }
+
+        .card-header i {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: rgba(248, 250, 252, 0.8);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .connect-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .connect-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* NFT Grid */
+        .nft-section {
+            margin-bottom: 2rem;
+        }
+
+        .nft-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .nft-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nft-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .nft-image {
+            width: 100%;
+            height: 220px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nft-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .nft-card:hover .nft-image::before {
+            transform: translateX(100%);
+        }
+
+        .nft-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+        }
+
+        .nft-info {
+            padding: 1.5rem;
+        }
+
+        .nft-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .nft-price {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .nft-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            flex: 1;
+        }
+
+        /* Table Styling */
+        .table-container {
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        table td {
+            padding: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.95rem;
+        }
+
+        table tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Market Overview Section */
+        .market-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 0 1rem;
+            }
+            
+            .account-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .market-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .nft-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animation for loading states */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Hidden state */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container header-content">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-gavel text-2xl"></i>
+                <span class="text-2xl font-bold">NFT Auction</span>
+            </div>
+            <a href="Home.html" class="hover:text-purple-200 transition-colors duration-300 flex items-center">
+                <i class="fas fa-compass mr-2"></i>Explore
+            </a>
+            <a href="create-nft.html" class="hover:text-purple-200 transition-colors duration-300 flex items-center">
+                <i class="fas fa-paint-brush mr-2"></i>Create
+            </a>
+            <a href="my-collection.html" class="hover:text-purple-200 transition-colors duration-300 flex items-center">
+                <i class="fas fa-layer-group mr-2"></i>My Collection
+            </a>
+            <a href="auction-market.html" class="hover:text-purple-200 transition-colors duration-300 flex items-center">
+                <i class="fas fa-gavel mr-2"></i>Auction
+            </a>
+            <div id="connect-wallet">
+                <button id="connect-button" class="connect-button">Connect Wallet</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Account Information -->
+        <div id="account-info" class="hidden">
+            <div class="account-card">
+                <div class="account-info">
+                    <div class="account-detail">
+                        <i class="fas fa-wallet"></i>
+                        <span>Address: <span id="account-address"></span></span>
+                    </div>
+                    <div class="account-detail">
+                        <i class="fas fa-coins"></i>
+                        <span>Balance: <span id="account-balance"></span> ETH</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <!-- Main Trading Interface -->
+        <div class="main-grid">
+            <!-- Place Bid Section -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-hand-paper"></i>
+                    <h2>Place Bid</h2>
+                </div>
+                <form id="bid-form">
+                    <div class="form-group">
+                        <label for="bid-amount">
+                            <i class="fab fa-ethereum"></i> Bid Amount (ETH)
+                        </label>
+                        <input type="number" id="bid-amount" min="0.001" step="0.001" placeholder="0.1" required>
+                    </div>
+                    <button type="submit" class="btn" style="width: 100%;">
+                        <i class="fas fa-gavel"></i> Place Bid
+                    </button>
+                </form>
+            </div>
+
+            <!-- Create Ask Section -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-tag"></i>
+                    <h2>Create Ask (Sell NFT)</h2>
+                </div>
+                <form id="ask-form">
+                    <div class="form-group">
+                        <label for="token-id">
+                            <i class="fas fa-hashtag"></i> Token ID
+                        </label>
+                        <input type="number" id="token-id" min="1" step="1" placeholder="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ask-price">
+                            <i class="fab fa-ethereum"></i> Ask Price (ETH)
+                        </label>
+                        <input type="number" id="ask-price" min="0.001" step="0.001" placeholder="0.1" required>
+                    </div>
+                    <button type="submit" class="btn" style="width: 100%;">
+                        <i class="fas fa-store"></i> List for Sale
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- My NFTs Section -->
+        <div class="card nft-section">
+            <div class="card-header">
+                <i class="fas fa-images"></i>
+                <h2>My NFT Collection</h2>
+            </div>
+            <div id="my-nfts" class="nft-grid">
+                <!-- Sample NFT Cards -->
+                
+            </div>
+        </div>
+
+        <!-- Trading Tables -->
+        <div class="main-grid">
+            <!-- Active Asks -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-chart-line"></i>
+                    <h2>Active Asks (Sell Orders)</h2>
+                </div>
+                <div class="table-container">
+                    <table id="asks-table">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-hashtag mr-2"></i>Token ID</th>
+                                <th><i class="fas fa-user mr-2"></i>Seller</th>
+                                <th><i class="fab fa-ethereum mr-2"></i>Price (ETH)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                           
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Active Bids -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-hand-paper"></i>
+                    <h2>Active Bids (Buy Orders)</h2>
+                </div>
+                <div class="table-container">
+                    <table id="bids-table">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-user mr-2"></i>Buyer</th>
+                                <th><i class="fab fa-ethereum mr-2"></i>Price (ETH)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                           
+                          
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+       // Web3 instance
+let web3;
+let contract;
+let accounts = [];
+let currentAccount;
+
+const contractAddress = "0x896eeE55B5a8783d45D11c4Ad64a5941fAf41934";
+
+// ABI for DoubleAuctionNFT contract
+const contractABI = [
+     {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721IncorrectOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "ERC721InsufficientApproval",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "approver",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721InvalidApprover",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721InvalidOperator",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721InvalidOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721InvalidReceiver",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721InvalidSender",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "ERC721NonexistentToken",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableInvalidOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableUnauthorizedAccount",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ReentrancyGuardReentrantCall",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "approved",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "Approval",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "approved",
+          "type": "bool"
+        }
+      ],
+      "name": "ApprovalForAll",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "winner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "AuctionEnded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "bidder",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "BidPlaced",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "bidder",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "BidWithdrawn",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "ListingCancelled",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "seller",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "enum NFTCollection.SaleType",
+          "name": "saleType",
+          "type": "uint8"
+        }
+      ],
+      "name": "NFTListed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "seller",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "buyer",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "name": "NFTSold",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "RoyaltyPaid",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "Transfer",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "activeListings",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "approve",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "asks",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "seller",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "active",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "auctionBids",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "bidders",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "bids",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "buyer",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "active",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "buyNFT",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "cancelListing",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "name": "createAsk",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "createBid",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "endAuction",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getActiveListings",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getApproved",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getBidHistory",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getListing",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "seller",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
+            },
+            {
+              "internalType": "enum NFTCollection.SaleType",
+              "name": "saleType",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "auctionEndTime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "highestBid",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "highestBidder",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "active",
+              "type": "bool"
+            },
+            {
+              "internalType": "uint256",
+              "name": "listingTime",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct NFTCollection.Listing",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "salePrice",
+          "type": "uint256"
+        }
+      ],
+      "name": "getRoyaltyInfo",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "getUserBid",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        }
+      ],
+      "name": "isApprovedForAll",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "isListed",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "startingPrice",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "durationInSeconds",
+          "type": "uint256"
+        }
+      ],
+      "name": "listNFTAuction",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "name": "listNFTFixedPrice",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "listings",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "seller",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "enum NFTCollection.SaleType",
+          "name": "saleType",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "auctionEndTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "highestBid",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "highestBidder",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "active",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "listingTime",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "uri",
+          "type": "string"
+        }
+      ],
+      "name": "mint",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "name",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "ownerOf",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "placeBid",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "salePrice",
+          "type": "uint256"
+        }
+      ],
+      "name": "royaltyInfo",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "safeTransferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "safeTransferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "approved",
+          "type": "bool"
+        }
+      ],
+      "name": "setApprovalForAll",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "uint16",
+          "name": "fraction",
+          "type": "uint16"
+        }
+      ],
+      "name": "setDefaultRoyalty",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "uint16",
+          "name": "fraction",
+          "type": "uint16"
+        }
+      ],
+      "name": "setTokenRoyalty",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes4",
+          "name": "interfaceId",
+          "type": "bytes4"
+        }
+      ],
+      "name": "supportsInterface",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "symbol",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "tokenURI",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalSupply",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdrawBid",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ];
+
+// IPFS Gateway configuration
+const ipfsGateway = "https://gateway.pinata.cloud/ipfs/";
+
+// Storage for fetched NFTs and marketplace data
+let userNFTs = [];
+let marketplaceAsks = [];
+let marketplaceBids = [];
+
+// Connect wallet button
+document.getElementById("connect-button").addEventListener("click", connectWallet);
+
+// Form submissions
+document.getElementById("bid-form").addEventListener("submit", handleBid);
+document.getElementById("ask-form").addEventListener("submit", handleAsk);
+
+// Initialize the app
+async function init() {
+    // Check if MetaMask is installed
+    if (window.ethereum) {
+        try {
+            web3 = new Web3(window.ethereum);
+            
+            // Check if already connected
+            accounts = await web3.eth.getAccounts();
+            if (accounts.length > 0) {
+                currentAccount = accounts[0];
+                await setupAccount();
+            }
+            
+            // Create contract instance
+            contract = new web3.eth.Contract(contractABI, contractAddress);
+            
+            // Listen for account changes
+            window.ethereum.on('accountsChanged', handleAccountsChanged);
+            
+            // Load marketplace data
+            if (currentAccount) {
+                await loadUserNFTs();
+                await loadMarketplaceData();
+            }
+        } catch (error) {
+            console.error("Error initializing Web3:", error);
+        }
+    } else {
+        console.log("MetaMask not installed");
+        alert("Please install MetaMask to use this application");
+    }
+}
+
+// Handle account changes
+function handleAccountsChanged(newAccounts) {
+    if (newAccounts.length === 0) {
+        // User disconnected
+        currentAccount = null;
+        document.getElementById("connect-button").textContent = "Connect Wallet";
+        document.getElementById("account-info").style.display = "none";
+    } else if (newAccounts[0] !== currentAccount) {
+        // Account changed
+        currentAccount = newAccounts[0];
+        setupAccount();
+        loadUserNFTs();
+    }
+}
+
+// Connect wallet
+async function connectWallet() {
+    if (window.ethereum) {
+        try {
+            accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+            currentAccount = accounts[0];
+            await setupAccount();
+            
+            // Load NFTs owned by the user
+            await loadUserNFTs();
+            await loadMarketplaceData();
+        } catch (error) {
+            console.error("Error connecting wallet:", error);
+        }
+    } else {
+        alert("Please install MetaMask to use this application");
+    }
+}
+
+// Setup account info
+async function setupAccount() {
+    document.getElementById("connect-button").textContent = "Connected";
+    document.getElementById("account-info").style.display = "block";
+    
+    // Display account address with truncation
+    const addressDisplay = `${currentAccount.substring(0, 6)}...${currentAccount.substring(currentAccount.length - 4)}`;
+    document.getElementById("account-address").textContent = addressDisplay;
+    
+    // Get and display account balance
+    const balanceWei = await web3.eth.getBalance(currentAccount);
+    const balanceEth = web3.utils.fromWei(balanceWei, "ether");
+    document.getElementById("account-balance").textContent = parseFloat(balanceEth).toFixed(4);
+}
+
+// Load user NFTs from contract and IPFS
+async function loadUserNFTs() {
+    if (!contract || !currentAccount) return;
+    
+    try {
+        const nftsContainer = document.getElementById("my-nfts");
+        nftsContainer.innerHTML = "<p>Loading your NFTs...</p>";
+        
+        // Get total supply from our contract
+        const totalSupply = await contract.methods.totalSupply().call();
+        let tokenIds = [];
+        
+        // Check each token
+        for (let i = 1; i <= totalSupply; i++) {
+            try {
+                const owner = await contract.methods.ownerOf(i).call();
+                if (owner.toLowerCase() === currentAccount.toLowerCase()) {
+                    tokenIds.push(i);
+                }
+            } catch (e) {
+                console.log(`Token ${i} may not exist or other error:`, e);
+            }
+        }
+        
+        // Reset user NFTs array
+        userNFTs = [];
+        
+        if (tokenIds.length === 0) {
+            nftsContainer.innerHTML = `
+                <p>You don't own any NFTs yet. Mint one to get started!</p>
+                <a href="create-nft.html">
+                    <button style="margin-top: 10px; padding: 10px 20px; font-size: 16px;">Mint NFT</button>
+                </a>
+            `;
+            
+            return;
+        }
+        
+        nftsContainer.innerHTML = ""; // Clear container
+        
+        // For each token, get metadata from IPFS
+        for (const tokenId of tokenIds) {
+            try {
+                // Get token URI from contract
+                const tokenURI = await contract.methods.tokenURI(tokenId).call();
+                
+                // Format the IPFS URI correctly
+                let metadataURL = tokenURI;
+                if (tokenURI.startsWith('ipfs://')) {
+                    const cid = tokenURI.replace('ipfs://', '');
+                    metadataURL = `${ipfsGateway}${cid}`;
+                }
+                
+                // Fetch metadata
+                const response = await fetch(metadataURL);
+                const metadata = await response.json();
+                
+                // Format image URL if it's an IPFS link
+                let imageUrl = metadata.image;
+                if (metadata.image && metadata.image.startsWith('ipfs://')) {
+                    const imageCid = metadata.image.replace('ipfs://', '');
+                    imageUrl = `${ipfsGateway}${imageCid}`;
+                }
+                
+                // Check if NFT is for sale (has an active ask)
+                const ask = marketplaceAsks.find(
+                    a => a.tokenId === parseInt(tokenId) && a.active
+                );
+                
+                const nftData = {
+                    id: parseInt(tokenId),
+                    title: metadata.name || `NFT #${tokenId}`,
+                    description: metadata.description || "",
+                    image: imageUrl || "/api/placeholder/240/200", // Fallback if no image
+                    attributes: metadata.attributes || [],
+                    forSale: !!ask,
+                    price: ask ? ask.price : null
+                };
+                
+                userNFTs.push(nftData);
+                
+                // Create and append NFT card to container
+                const nftElement = createNFTCard(nftData);
+                nftsContainer.appendChild(nftElement);
+                
+            } catch (error) {
+                console.error(`Error loading metadata for token ${tokenId}:`, error);
+                
+                // Add a placeholder for failed NFTs
+                const fallbackNFT = {
+                    id: parseInt(tokenId),
+                    title: `NFT #${tokenId}`,
+                    description: "Metadata unavailable",
+                    image: "/api/placeholder/240/200",
+                    forSale: false
+                };
+                
+                userNFTs.push(fallbackNFT);
+                
+                // Create and append fallback NFT card
+                const nftElement = createNFTCard(fallbackNFT);
+                nftsContainer.appendChild(nftElement);
+            }
+        }
+    } catch (error) {
+        console.error("Error loading NFTs:", error);
+        document.getElementById("my-nfts").innerHTML = 
+            "<p>Error loading NFTs. Please check console for details.</p>";
+    }
+}
+
+// Create NFT card element
+function createNFTCard(nft) {
+    const nftElement = document.createElement("div");
+    nftElement.className = "nft-card";
+    
+    const priceDisplay = nft.forSale 
+        ? `<div class="nft-price">${nft.price} ETH</div>` 
+        : `<div class="nft-price">Not for sale</div>`;
+    
+    const actionButton = nft.forSale
+        ? `<button class="btn" onclick="cancelSale(${nft.id})">Cancel Sale</button>`
+        : `<button class="btn" onclick="showSellForm(${nft.id})">Sell</button>`;
+    
+    nftElement.innerHTML = `
+        <div class="nft-image">
+            <img src="${nft.image}" alt="${nft.title}">
+        </div>
+        <div class="nft-info">
+            <div class="nft-title">${nft.title}</div>
+            <div class="nft-description">${nft.description.substring(0, 50)}${nft.description.length > 50 ? '...' : ''}</div>
+            ${priceDisplay}
+            <div class="nft-actions">
+                ${actionButton}
+            </div>
+        </div>
+    `;
+    
+    return nftElement;
+}
+
+// Load marketplace data (asks and bids)
+async function loadMarketplaceData() {
+    if (!contract) return;
+    
+    try {
+        await loadAsks();
+        await loadBids();
+    } catch (error) {
+        console.error("Error loading marketplace data:", error);
+    }
+}
+
+// Load asks (sell orders) from contract
+// Load asks (sell orders) from contract
+async function loadAsks() {
+    try {
+        const asksTable = document.getElementById("asks-table").getElementsByTagName("tbody")[0];
+        asksTable.innerHTML = "<tr><td colspan='4'>Loading marketplace listings...</td></tr>";
+        
+        // For our contract, we need to loop through the asks array
+        let askCount = 0;
+        let tempAsks = [];
+        let i = 0;
+        
+        // Keep trying to get asks until we hit an error (indicating end of array)
+        while (true) {
+            try {
+                const ask = await contract.methods.asks(i).call();
+                tempAsks.push({
+                    tokenId: parseInt(ask.tokenId),
+                    seller: ask.seller,
+                    price: parseFloat(web3.utils.fromWei(ask.price, "ether")),
+                    active: ask.active
+                });
+                i++;
+            } catch (e) {
+                // We've reached the end of the array
+                break;
+            }
+        }
+        
+        marketplaceAsks = tempAsks;
+        await renderAsksTable();
+    } catch (error) {
+        console.error("Error loading asks:", error);
+        document.getElementById("asks-table").getElementsByTagName("tbody")[0].innerHTML = 
+            "<tr><td colspan='4'>Error loading marketplace listings</td></tr>";
+    }
+}
+
+// Render asks table with NFT images
+async function renderAsksTable() {
+    const asksTable = document.getElementById("asks-table").getElementsByTagName("tbody")[0];
+    asksTable.innerHTML = "";
+    
+    if (marketplaceAsks.length === 0) {
+        const row = asksTable.insertRow();
+        const cell = row.insertCell();
+        cell.colSpan = 4;
+        cell.textContent = "No listings available";
+        return;
+    }
+    
+    // Filter to show only active asks
+    const activeAsks = marketplaceAsks.filter(ask => ask.active);
+    
+    if (activeAsks.length === 0) {
+        const row = asksTable.insertRow();
+        const cell = row.insertCell();
+        cell.colSpan = 4;
+        cell.textContent = "No active listings available";
+        return;
+    }
+    
+    // Process each ask to get NFT metadata and images
+    for (const ask of activeAsks) {
+        const row = asksTable.insertRow();
+        
+        // Create image cell
+        const imageCell = row.insertCell();
+        imageCell.style.width = "80px";
+        imageCell.style.padding = "8px";
+        
+        // Initially show loading placeholder
+        imageCell.innerHTML = `
+            <div style="width: 60px; height: 60px; background-color: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #666;">
+                Loading...
+            </div>
+        `;
+        
+        const sellerCell = row.insertCell();
+        sellerCell.textContent = `${ask.seller.substring(0, 6)}...${ask.seller.substring(ask.seller.length - 4)}`;
+        
+        const priceCell = row.insertCell();
+        priceCell.textContent = `${ask.price} ETH`;
+        
+     
+        
+        // Fetch NFT metadata and update image asynchronously
+        try {
+            // Get token URI from contract
+            const tokenURI = await contract.methods.tokenURI(ask.tokenId).call();
+            
+            // Format the IPFS URI correctly for Pinata
+            let metadataURL = tokenURI;
+            if (tokenURI.startsWith('ipfs://')) {
+                const cid = tokenURI.replace('ipfs://', '');
+                metadataURL = `https://gateway.pinata.cloud/ipfs/${cid}`;
+            }
+            
+            // Fetch metadata
+            const response = await fetch(metadataURL);
+            const metadata = await response.json();
+            
+            // Format image URL for Pinata gateway
+            let imageUrl = metadata.image;
+            if (metadata.image && metadata.image.startsWith('ipfs://')) {
+                const imageCid = metadata.image.replace('ipfs://', '');
+                imageUrl = `https://gateway.pinata.cloud/ipfs/${imageCid}`;
+            }
+            
+            // Update the image cell with actual NFT image
+            imageCell.innerHTML = `
+                <div style="width: 60px; height: 60px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd;">
+                    <img src="${imageUrl || '/api/placeholder/60/60'}" 
+                         alt="NFT #${ask.tokenId}" 
+                         style="width: 100%; height: 100%; object-fit: cover;"
+                         onerror="this.src='/api/placeholder/60/60'; this.alt='Image not available';">
+                </div>
+                
+            `;
+            
+        } catch (error) {
+            console.error(`Error loading metadata for token ${ask.tokenId}:`, error);
+            
+            // Show fallback image with token ID
+            imageCell.innerHTML = `
+                <div style="width: 60px; height: 60px; background-color: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #666; border: 1px solid #ddd;">
+                    NFT
+                </div>
+                <div style="font-size: 10px; text-align: center; margin-top: 2px; color: #666;">
+                    #${ask.tokenId}
+                </div>
+            `;
+        }
+    }
+}
+
+// Load bids (buy orders) from contract
+async function loadBids() {
+    try {
+        const bidsTable = document.getElementById("bids-table").getElementsByTagName("tbody")[0];
+        bidsTable.innerHTML = "<tr><td colspan='3'>Loading bids...</td></tr>";
+        
+        // Similar to asks, we need to loop through the bids array
+        let tempBids = [];
+        let i = 0;
+        
+        // Keep trying to get bids until we hit an error (indicating end of array)
+        while (true) {
+            try {
+                const bid = await contract.methods.bids(i).call();
+                tempBids.push({
+                    buyer: bid.buyer,
+                    price: parseFloat(web3.utils.fromWei(bid.price, "ether")),
+                    active: bid.active
+                });
+                i++;
+            } catch (e) {
+                // We've reached the end of the array
+                break;
+            }
+        }
+        
+        marketplaceBids = tempBids;
+        renderBidsTable();
+    } catch (error) {
+        console.error("Error loading bids:", error);
+        document.getElementById("bids-table").getElementsByTagName("tbody")[0].innerHTML = 
+            "<tr><td colspan='3'>Error loading bids</td></tr>";
+    }
+}
+
+// Render bids table
+function renderBidsTable() {
+    const bidsTable = document.getElementById("bids-table").getElementsByTagName("tbody")[0];
+    bidsTable.innerHTML = "";
+    
+    if (marketplaceBids.length === 0) {
+        const row = bidsTable.insertRow();
+        const cell = row.insertCell();
+        cell.colSpan = 3;
+        cell.textContent = "No bids available";
+        return;
+    }
+    
+    // Filter to show only active bids
+    const activeBids = marketplaceBids.filter(bid => bid.active);
+    
+    if (activeBids.length === 0) {
+        const row = bidsTable.insertRow();
+        const cell = row.insertCell();
+        cell.colSpan = 3;
+        cell.textContent = "No active bids available";
+        return;
+    }
+    
+    activeBids.forEach(bid => {
+        const row = bidsTable.insertRow();
+        
+        const buyerCell = row.insertCell();
+        buyerCell.textContent = `${bid.buyer.substring(0, 6)}...${bid.buyer.substring(bid.buyer.length - 4)}`;
+        
+        const priceCell = row.insertCell();
+        priceCell.textContent = `${bid.price} ETH`;
+        
+        const actionCell = row.insertCell();
+        if (currentAccount && currentAccount.toLowerCase() === bid.buyer.toLowerCase()) {
+            actionCell.innerHTML = `<button class="btn btn-small" onclick="cancelBid()">Cancel Bid</button>`;
+        } else {
+            actionCell.textContent = "-";
+        }
+    });
+}
+
+// Handle bid form submission
+async function handleBid(e) {
+    e.preventDefault();
+    const bidAmount = document.getElementById("bid-amount").value;
+    
+    if (!web3 || !currentAccount) {
+        alert("Please connect your wallet first");
+        return;
+    }
+    
+    if (!bidAmount || parseFloat(bidAmount) <= 0) {
+        alert("Please enter a valid bid amount");
+        return;
+    }
+    
+    try {
+        // Show pending status
+        const bidButton = e.target.querySelector("button[type='submit']");
+        const originalText = bidButton.textContent;
+        bidButton.textContent = "Placing Bid...";
+        bidButton.disabled = true;
+        
+        // Convert ETH to Wei
+        const bidAmountWei = web3.utils.toWei(bidAmount, "ether");
+        
+        // Call contract createBid function
+        const tx = await contract.methods.createBid().send({ 
+            from: currentAccount,
+            value: bidAmountWei
+        });
+        
+        console.log("Bid placed successfully:", tx);
+        alert(`Bid placed successfully! Amount: ${bidAmount} ETH`);
+        
+        // Clear form
+        document.getElementById("bid-amount").value = "";
+        
+        // Refresh bids display
+        await loadBids();
+        
+        // Attempt to match orders
+        await matchOrders();
+        
+        // Reset button
+        bidButton.textContent = originalText;
+        bidButton.disabled = false;
+    } catch (error) {
+        console.error("Error placing bid:", error);
+        alert("Error placing bid. Please check console for details.");
+        
+        // Reset button
+        const bidButton = e.target.querySelector("button[type='submit']");
+        bidButton.textContent = "Place Bid";
+        bidButton.disabled = false;
+    }
+}
+
+// Handle ask (sell) form submission
+async function handleAsk(e) {
+    e.preventDefault();
+    const tokenId = document.getElementById("token-id").value;
+    const askPrice = document.getElementById("ask-price").value;
+    
+    if (!web3 || !currentAccount) {
+        alert("Please connect your wallet first");
+        return;
+    }
+    
+    if (!tokenId || !askPrice || parseFloat(askPrice) <= 0) {
+        alert("Please enter a valid token ID and price");
+        return;
+    }
+    
+    try {
+        // Check if user owns the token
+        const owner = await contract.methods.ownerOf(tokenId).call();
+        if (owner.toLowerCase() !== currentAccount.toLowerCase()) {
+            alert("You don't own this NFT");
+            return;
+        }
+        
+        // Show pending status
+        const askButton = e.target.querySelector("button[type='submit']");
+        const originalText = askButton.textContent;
+        askButton.textContent = "Creating Listing...";
+        askButton.disabled = true;
+        
+        // For our contract: Approve the contract to transfer the NFT
+        // First, check if already approved
+        const approved = await contract.methods.getApproved(tokenId).call();
+        
+        if (approved.toLowerCase() !== contractAddress.toLowerCase()) {
+            // Approve the contract to transfer this specific NFT
+            const approveTx = await contract.methods.approve(
+                contractAddress, 
+                tokenId
+            ).send({ from: currentAccount });
+            console.log("NFT approved for transfer:", approveTx);
+        }
+        
+        // Convert ETH to Wei
+        const askPriceWei = web3.utils.toWei(askPrice, "ether");
+        
+        // Call contract createAsk function
+        const tx = await contract.methods.createAsk(tokenId, askPriceWei).send({ 
+            from: currentAccount
+        });
+        
+        console.log("NFT listed for sale successfully:", tx);
+        alert(`NFT listed for sale successfully! Token ID: ${tokenId}, Price: ${askPrice} ETH`);
+        
+        // Clear form
+        document.getElementById("token-id").value = "";
+        document.getElementById("ask-price").value = "";
+        
+        // Refresh marketplace displays
+        await loadAsks();
+        await loadUserNFTs();
+        
+        // Reset button
+        askButton.textContent = originalText;
+        askButton.disabled = false;
+    } catch (error) {
+        console.error("Error creating ask:", error);
+        alert("Error creating listing. Please check console for details.");
+        
+        // Reset button
+        const askButton = e.target.querySelector("button[type='submit']");
+        askButton.textContent = "List for Sale";
+        askButton.disabled = false;
+    }
+}
+
+// Buy NFT directly (fulfill ask)
+async function buyNFT(tokenId, price) {
+    if (!web3 || !currentAccount) {
+        alert("Please connect your wallet first");
+        return;
+    }
+    
+    try {
+        if (!confirm(`Are you sure you want to buy NFT #${tokenId} for ${price} ETH?`)) {
+            return;
+        }
+        
+        // Convert ETH to Wei
+        const priceWei = web3.utils.toWei(price.toString(), "ether");
+        
+        // Call contract fulfillAsk function
+        const tx = await contract.methods.fulfillAsk(tokenId).send({ 
+            from: currentAccount,
+            value: priceWei
+        });
+        
+        console.log("NFT purchased successfully:", tx);
+        alert(`NFT #${tokenId} purchased successfully!`);
+        
+        // Refresh displays
+        await loadMarketplaceData();
+        await loadUserNFTs();
+    } catch (error) {
+        console.error("Error buying NFT:", error);
+        alert("Error buying NFT. Please check console for details.");
+    }
+}
+
+// Cancel bid
+async function cancelBid() {
+    if (!web3 || !currentAccount) {
+        alert("Please connect your wallet first");
+        return;
+    }
+    
+    try {
+        if (!confirm("Are you sure you want to cancel your bid?")) {
+            return;
+        }
+        
+        // Call contract cancelBid function
+        const tx = await contract.methods.cancelBid().send({ 
+            from: currentAccount
+        });
+        
+        console.log("Bid canceled successfully:", tx);
+        alert("Bid canceled successfully!");
+        
+        // Refresh bids display
+        await loadBids();
+    } catch (error) {
+        console.error("Error canceling bid:", error);
+        alert("Error canceling bid. Please check console for details.");
+    }
+}
+
+// Cancel sale (remove ask)
+async function cancelSale(tokenId) {
+    if (!web3 || !currentAccount) {
+        alert("Please connect your wallet first");
+        return;
+    }
+    
+    try {
+        if (!confirm(`Are you sure you want to cancel the sale for NFT #${tokenId}?`)) {
+            return;
+        }
+        
+        // Call contract cancelAsk function
+        const tx = await contract.methods.cancelAsk(tokenId).send({ 
+            from: currentAccount
+        });
+        
+        console.log("Sale canceled successfully:", tx);
+        alert(`Sale canceled for NFT #${tokenId}`);
+        
+        // Refresh displays
+        await loadAsks();
+        await loadUserNFTs();
+    } catch (error) {
+        console.error("Error canceling sale:", error);
+        alert("Error canceling sale. Please check console for details.");
+    }
+}
+
+// Match orders function
+// Note: In our contract, matching happens automatically when creating asks or bids
+// This function is just for manually refreshing the UI after transactions
+async function matchOrders() {
+    if (!web3 || !contract) return;
+    
+    try {
+        console.log("Refreshing marketplace data...");
+        
+        // Refresh displays
+        await loadMarketplaceData();
+        await loadUserNFTs();
+    } catch (error) {
+        console.error("Error refreshing marketplace data:", error);
+    }
+}
+
+// Show sell form with pre-filled token ID
+function showSellForm(tokenId) {
+    document.getElementById("token-id").value = tokenId;
+    document.getElementById("ask-price").focus();
+    window.scrollTo({
+        top: document.getElementById("ask-form").offsetTop - 100,
+        behavior: "smooth"
+    });
+}
+
+// For functionality needed by the UI
+window.showSellForm = showSellForm;
+window.cancelSale = cancelSale;
+window.buyNFT = buyNFT;
+window.cancelBid = cancelBid;
+
+// Initialize on page load
+window.addEventListener("load", init);
+    </script>
+</body>
+</html>

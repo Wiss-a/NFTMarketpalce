@@ -1,0 +1,2191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFT Marketplace</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+    <style>
+        .gradient-bg {
+            background: linear-gradient(90deg, #4F46E5, #7C3AED);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .card {
+            transition: all 0.3s ease;
+        }
+        .modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Modal Box */
+.modal-content {
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 400px;
+  margin: 15% auto;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.4s ease-out;
+}
+
+/* Heading */
+.modal-content h2 {
+  color: #7C3AED;
+  margin-bottom: 10px;
+  font-size: 24px;
+}
+
+/* Paragraph */
+.modal-content p {
+  color: #555;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+/* OK Button */
+.modal-ok-btn {
+  padding: 10px 20px;
+  background-color: #7C3AED;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.modal-ok-btn:hover {
+  background-color: #7C3AED;
+}
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <!-- Navigation -->
+    <nav class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-1">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-palette text-2xl"></i>
+                    <span class="text-2xl font-bold">NFT Marketplace</span>
+                </div>
+                <div class="hidden md:flex space-x-9">
+                  <a href="Home.html" class="hover:text-purple-200 transition-colors duration-300 flex items-center">
+                      <i class="fas fa-compass mr-2"></i>Explore
+                  </a>
+                  <a href="create-nft.html" class="hover:text-purple-200 transition-colors duration-300 flex items-center">
+                      <i class="fas fa-paint-brush mr-2"></i>Create
+                  </a>
+                  <a href="my-collection.html" class="hover:text-purple-200 transition-colors duration-300 flex items-center">
+                      <i class="fas fa-layer-group mr-2"></i>My Collection
+                  </a>
+                  <a href="auction-market.html" class="hover:text-purple-200 transition-colors duration-300 flex items-center">
+                      <i class="fas fa-gavel mr-2"></i>Auction
+                  </a>
+              </div>
+              <div class="flex items-center space-x-4">
+                <button id="connectWalletBtn" class="bg-white text-indigo-600 font-medium py-2 px-6 rounded-full hover:bg-purple-100 transition duration-300 flex items-center space-x-2 pulse shadow-lg">
+                    <i class="fas fa-wallet mr-2"></i><span id="walletBtnText">Connect Wallet</span>
+                </button>
+            </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="py-12 md:py-20 gradient-bg text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">Discover, Create & Collect Digital Art</h1>
+            <p class="text-xl md:text-2xl mb-10 max-w-3xl mx-auto">The world's first and largest digital marketplace for crypto collectibles and NFTs</p>
+            <div class="flex justify-center space-x-4">
+                <a href="Home.html" class="bg-white text-indigo-600 font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition duration-300">Explore</button>
+                <a href="create-nft.html" class="border-2 border-white text-white font-bold py-3 px-8 rounded-full hover:bg-white hover:text-indigo-600 transition duration-300">Create NFT</a>            </div>
+        </div>
+    </section>
+
+    <!-- Featured NFTs -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center mb-10">
+                <h2 class="text-3xl font-bold text-gray-800">Featured NFTs</h2>
+                <a href="#" class="text-indigo-600 hover:underline">View All</a>
+            </div>
+            <div id="featuredNFTs" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- NFT cards will be dynamically inserted here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Top Collections -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-gray-800 mb-10">Top Collections</h2>
+            <div id="topCollections" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Collection cards will be dynamically inserted here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Create and Sell Section -->
+    <section class="py-16 gradient-bg text-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-12 text-center">Create and Sell Your NFTs</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div class="bg-white text-indigo-600 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-wallet text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Set up your wallet</h3>
+                    <p class="opacity-80">Connect your Ethereum wallet to get started with NFT trading</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-white text-indigo-600 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-folder-plus text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Create your collection</h3>
+                    <p class="opacity-80">Upload your work and set up your collection with descriptions and properties</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-white text-indigo-600 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-upload text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Add your NFTs</h3>
+                    <p class="opacity-80">Add details like name, description, and properties to showcase your NFTs</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-white text-indigo-600 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-tag text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">List for sale</h3>
+                    <p class="opacity-80">Choose between auctions, fixed-price listings, and declining-price listings</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div id="failed" class="modal">
+  <div class="modal-content">
+    <h2>Cannot buy your own NFT</h2>
+   
+   <a href="Home.html" id="modalOkBtn" class="modal-ok-btn">OK</a>
+  </div>
+</div>
+
+<div id="success" class="modal">
+  <div class="modal-content">
+    <h2>NFT purchased successfully!</h2>
+   
+   <a href="Home.html" id="modalOkBtn" class="modal-ok-btn">OK</a>
+  </div>
+</div>
+<div id="successauction" class="modal">
+  <div class="modal-content">
+    <h2>Auction ended successfully!</h2>
+   
+   <a href="Home.html" id="modalOkBtn" class="modal-ok-btn">OK</a>
+  </div>
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script>
+      // Clear old demo NFTs (only once, optional)
+//localStorage.removeItem('nftItems');
+localStorage.removeItem('createdNFTs');
+
+
+        // Collection data
+        if (!localStorage.getItem('collectionItems')) {
+            const collectionItems = [
+                {
+                    id: 1,
+                    name: "Bored Ape Club",
+                    image: "https://image.binance.vision/editor-uploads-original/9c15d9647b9643dfbc5e522299d13593.png",
+                    floor: 12.5,
+                    volume: 15240,
+                    items: 10000,
+                    change: 12.5,
+                    isPositive: true
+                },
+                {
+                    id: 2,
+                    name: "Crypto Punks",
+                    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTecygmHlK0uOjWo3zJhP02ZqrY3RuU7huwPg&s",
+                    floor: 8.7,
+                    volume: 12750,
+                    items: 9999,
+                    change: 8.3,
+                    isPositive: true
+                },
+                {
+                    id: 3,
+                    name: "Digital Dreamers",
+                    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSSyqaUGkf0UaQXzjPMgjpUBrFBXovDjKDNg&s",
+                    floor: 3.2,
+                    volume: 8450,
+                    items: 7500,
+                    change: 2.1,
+                    isPositive: false
+                }
+            ];
+            
+            localStorage.setItem('collectionItems', JSON.stringify(collectionItems));
+        }
+        
+        
+
+
+const CONTRACT_ADDRESS = "0x896eeE55B5a8783d45D11c4Ad64a5941fAf41934";
+const CONTRACT_ABI = [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721IncorrectOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "ERC721InsufficientApproval",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "approver",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721InvalidApprover",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721InvalidOperator",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721InvalidOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721InvalidReceiver",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721InvalidSender",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "ERC721NonexistentToken",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableInvalidOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableUnauthorizedAccount",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ReentrancyGuardReentrantCall",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "approved",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "Approval",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "approved",
+          "type": "bool"
+        }
+      ],
+      "name": "ApprovalForAll",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "winner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "AuctionEnded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "bidder",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "BidPlaced",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "bidder",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "BidWithdrawn",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "ListingCancelled",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "seller",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "enum NFTCollection.SaleType",
+          "name": "saleType",
+          "type": "uint8"
+        }
+      ],
+      "name": "NFTListed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "seller",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "buyer",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "name": "NFTSold",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "RoyaltyPaid",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "Transfer",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "activeListings",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "approve",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "asks",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "seller",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "active",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "auctionBids",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "bidders",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "bids",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "buyer",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "active",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "buyNFT",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "cancelListing",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "name": "createAsk",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "createBid",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "endAuction",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getActiveListings",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getApproved",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getBidHistory",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getListing",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "seller",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
+            },
+            {
+              "internalType": "enum NFTCollection.SaleType",
+              "name": "saleType",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "auctionEndTime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "highestBid",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "highestBidder",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "active",
+              "type": "bool"
+            },
+            {
+              "internalType": "uint256",
+              "name": "listingTime",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct NFTCollection.Listing",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "salePrice",
+          "type": "uint256"
+        }
+      ],
+      "name": "getRoyaltyInfo",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "getUserBid",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        }
+      ],
+      "name": "isApprovedForAll",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "isListed",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "startingPrice",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "durationInSeconds",
+          "type": "uint256"
+        }
+      ],
+      "name": "listNFTAuction",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "name": "listNFTFixedPrice",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "listings",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "seller",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "enum NFTCollection.SaleType",
+          "name": "saleType",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "auctionEndTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "highestBid",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "highestBidder",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "active",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "listingTime",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "uri",
+          "type": "string"
+        }
+      ],
+      "name": "mint",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "name",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "ownerOf",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "placeBid",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "salePrice",
+          "type": "uint256"
+        }
+      ],
+      "name": "royaltyInfo",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "safeTransferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "safeTransferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "approved",
+          "type": "bool"
+        }
+      ],
+      "name": "setApprovalForAll",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "uint16",
+          "name": "fraction",
+          "type": "uint16"
+        }
+      ],
+      "name": "setDefaultRoyalty",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "uint16",
+          "name": "fraction",
+          "type": "uint16"
+        }
+      ],
+      "name": "setTokenRoyalty",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes4",
+          "name": "interfaceId",
+          "type": "bytes4"
+        }
+      ],
+      "name": "supportsInterface",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "symbol",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "tokenURI",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalSupply",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdrawBid",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+];
+
+
+// function to load NFTs from blockchain listings
+// Global variable to track the countdown interval
+let blockchainCountdownInterval = null;
+
+async function loadListedNFTsFromBlockchain() {
+    if (!window.ethereum) {
+        console.log("MetaMask not installed; no NFTs to display");
+        return;
+    }
+
+    try {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+        const container = document.getElementById("featuredNFTs");
+        container.innerHTML = "";
+        
+        // Get all active listings from the contract
+        const activeListingIds = await contract.getActiveListings();
+        
+        if (activeListingIds.length === 0) {
+            container.innerHTML = `
+                <div class="col-span-full text-center py-12">
+                    <i class="fas fa-store text-4xl text-gray-400 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-600 mb-2">No NFTs Listed for Sale</h3>
+                    <p class="text-gray-500">NFTs that are listed for sale will appear here.</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Array to store the listed NFTs
+        const listedNFTs = [];
+
+        // Process each listing
+        for (const tokenId of activeListingIds) {
+            try {
+                // Get listing details from contract
+                const listing = await contract.getListing(tokenId);
+                
+                // Skip if listing is not active
+                if (!listing.active) continue;
+                
+                // Get NFT metadata
+                const tokenURI = await contract.tokenURI(tokenId);
+                const formattedURI = tokenURI.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/");
+                
+                const response = await fetch(formattedURI);
+                if (!response.ok) {
+                    console.warn(`NFT metadata not found for token #${tokenId}, skipping.`);
+                    continue;
+                }
+                
+                const metadata = await response.json();
+                if (!metadata || !metadata.image) {
+                    continue;
+                }
+
+                // Format image URL if it's IPFS
+                const imageUrl = metadata.image.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/");
+                
+                // Create NFT object with blockchain listing data
+                const nft = {
+                    id: tokenId.toString(),
+                    name: metadata.name,
+                    royalty: metadata.royalty,
+                    image: imageUrl,
+                    price: ethers.utils.formatEther(listing.price),
+                    seller: listing.seller,
+                    tokenId: tokenId.toString(),
+                    saleType: listing.saleType === 0 ? "fixed" : "auction",
+                    auctionEndTime: listing.auctionEndTime.toString(),
+                    highestBid: ethers.utils.formatEther(listing.highestBid),
+                    highestBidder: listing.highestBidder,
+                    listingTime: listing.listingTime.toString()
+                };
+                
+                listedNFTs.push(nft);
+            } catch (error) {
+                console.error(`Error processing listing for token ${tokenId}:`, error);
+            }
+        }
+
+        // Sort by listing time (newest first)
+        listedNFTs.sort((a, b) => parseInt(b.listingTime) - parseInt(a.listingTime));
+
+        // Display each listed NFT
+        listedNFTs.forEach(nft => {
+            const card = document.createElement("div");
+            card.className = "card card-hover bg-white rounded-xl shadow-md overflow-hidden";
+            
+            // Format seller address for display
+            const shortAddress = nft.seller.slice(0, 6) + '...' + nft.seller.slice(-4);
+            
+            // Determine if the auction is active (if it's an auction)
+            const now = Math.floor(Date.now() / 1000);
+            const isAuctionActive = nft.saleType === "auction" && parseInt(nft.auctionEndTime) > now;
+            
+            // Different button and display based on sale type
+            let priceDisplay = `${nft.price} ETH`;
+            let actionButton = '';
+            let countdownHTML = '';
+            let royalty = `${nft.royalty} %`;
+            if (nft.saleType === "fixed") {
+                actionButton = `<button onclick="buyNFT('${nft.tokenId}', '${nft.price}')" class="bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full text-sm hover:bg-indigo-200">Buy Now</button>`;
+            } else if (nft.saleType === "auction") {
+                if (isAuctionActive) {
+                    // Show current highest bid or starting price
+                    const currentPrice = parseFloat(nft.highestBid) > 0 ? nft.highestBid : nft.price;
+                    priceDisplay = parseFloat(nft.highestBid) > 0 ? `Current Bid: ${currentPrice} ETH` : `Starting Bid: ${nft.price} ETH` ;
+                    
+                    // Create countdown element with proper data attributes
+                    const timeRemaining = calculateAuctionTimeRemaining(parseInt(nft.auctionEndTime));
+                    countdownHTML = `
+                        <div class="auction-countdown-blockchain" data-end-time="${nft.auctionEndTime}">
+                            <span class="countdown-timer text-xs text-red-500">${timeRemaining}</span>
+                        </div>
+                    `;
+                    
+                    actionButton = `
+                        <div class="flex items-center justify-between w-full">
+                            ${countdownHTML}
+                            <button onclick="placeBid('${nft.tokenId}', '${currentPrice}')" class="bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full text-sm hover:bg-indigo-200">Place Bid</button>
+                        </div>
+                    `;
+                } else {
+                    // Auction ended
+                    priceDisplay = `Auction Ended`;
+                    actionButton = `<button onclick="endAuction('${nft.tokenId}')" class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm hover:bg-gray-200">End Auction</button>`;
+                }
+            }
+            
+            card.innerHTML = `
+                <div class="relative">
+                    <img src="${nft.image}" alt="${nft.name}" class="w-full h-64 object-cover">
+                    <div class="absolute top-3 right-3 bg-indigo-600 text-white px-2 py-1 rounded-full text-xs">${priceDisplay}</div>
+                                      <div class="absolute top-80 right-3 bg-indigo-600 text-white px-2 py-1 rounded-full text-xs">Royalty: ${royalty}</div>
+
+                    ${nft.saleType === "auction" ? '<div class="absolute top-3 left-3 bg-red-600 text-white px-2 py-1 rounded-full text-xs">Auction</div>' : '<div class="absolute top-3 left-3 bg-green-600 text-white px-2 py-1 rounded-full text-xs">For Sale</div>'}
+                </div>
+                <div class="p-5">                    
+
+                    <h3 class="text-xl font-semibold mb-2">${nft.name}</h3>
+                    <div class="flex items-center mb-3">
+                        <img src="${nft.image}" alt="Seller" class="w-8 h-8 rounded-full mr-2">
+                        <span class="text-gray-600">@${shortAddress}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        ${actionButton}
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+        // If no active listings after processing
+        if (container.children.length === 0) {
+            container.innerHTML = `
+                <div class="col-span-full text-center py-12">
+                    <i class="fas fa-clock text-4xl text-gray-400 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-600 mb-2">No Active Listings</h3>
+                    <p class="text-gray-500">All auctions have ended. List new NFTs from your collection.</p>
+                </div>
+            `;
+        } else {
+            // Start the countdown updates after all NFTs are loaded
+            startBlockchainCountdowns();
+        }
+
+    } catch (error) {
+        console.error("Error loading listed NFTs from blockchain:", error);
+        const container = document.getElementById("featuredNFTs");
+        container.innerHTML = `
+            <div class="col-span-full text-center py-12">
+                <i class="fas fa-exclamation-circle text-3xl text-red-500"></i>
+                <p class="mt-2 text-gray-600">Failed to load NFTs. Please try again.</p>
+            </div>
+        `;
+    }
+}
+
+function calculateAuctionTimeRemaining(endTimeInSeconds) {
+    const now = Math.floor(Date.now() / 1000);
+    const timeLeft = endTimeInSeconds - now;
+    
+    if (timeLeft <= 0) {
+        return "Auction ended";
+    }
+    
+    // Calculate hours, minutes, seconds
+    const hours = Math.floor(timeLeft / 3600);
+    const minutes = Math.floor((timeLeft % 3600) / 60);
+    const seconds = timeLeft % 60;
+    
+    // Format with leading zeros for better display
+    const formattedHours = hours.toString().padStart(2, '0');
+    const formattedMinutes = minutes.toString().padStart(2, '0');
+    const formattedSeconds = seconds.toString().padStart(2, '0');
+    
+    return `${formattedHours} h : ${formattedMinutes} m : ${formattedSeconds} s`;
+}
+
+function startBlockchainCountdowns() {
+    // Clear any existing countdown interval to prevent duplicates
+    if (blockchainCountdownInterval) {
+        clearInterval(blockchainCountdownInterval);
+    }
+    
+    // Start countdown timers
+    updateBlockchainCountdowns();
+    // Update every second
+    blockchainCountdownInterval = setInterval(updateBlockchainCountdowns, 1000);
+}
+
+function updateBlockchainCountdowns() {
+    const countdownElements = document.querySelectorAll('.auction-countdown-blockchain');
+    countdownElements.forEach(element => {
+        const endTime = parseInt(element.getAttribute('data-end-time'));
+        const timerDisplay = element.querySelector('.countdown-timer');
+        const timeRemaining = calculateAuctionTimeRemaining(endTime);
+        
+        timerDisplay.textContent = timeRemaining;
+        
+        // Add visual urgency for auctions ending soon
+        const now = Math.floor(Date.now() / 1000);
+        const timeLeft = endTime - now;
+        
+        if (timeLeft <= 3600) { // Last hour
+            timerDisplay.classList.add('text-red-600', 'font-bold');
+            timerDisplay.classList.remove('text-red-500');
+        }
+        
+        if (timeLeft <= 0) {
+            // Find the associated button and disable it
+            const card = element.closest('.card');
+            const placeBidButton = card.querySelector('button[onclick*="placeBid"]');
+            if (placeBidButton) {
+                placeBidButton.disabled = true;
+                placeBidButton.textContent = 'Auction Ended';
+                placeBidButton.className = 'bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm cursor-not-allowed';
+            }
+        }
+    });
+}
+
+
+function showFailedModal() {
+  const modal = document.getElementById("failed");
+  modal.style.display = "block";
+
+  document.getElementById("modalOkBtn").onclick = () => {
+    modal.style.display = "none";
+  };
+
+  // Optional: close if clicking outside
+  window.onclick = function(event) {
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  };}
+ function showSuccessModal() {
+  const modal = document.getElementById("success");
+  modal.style.display = "block";
+
+  document.getElementById("modalOkBtn").onclick = () => {
+    modal.style.display = "none";
+  };
+
+  // Optional: close if clicking outside
+  window.onclick = function(event) {
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  };
+}
+ function showSuccessModalAuction() {
+  const modal = document.getElementById("successauction");
+  modal.style.display = "block";
+
+  document.getElementById("modalOkBtn").onclick = () => {
+    modal.style.display = "none";
+  };
+
+  // Optional: close if clicking outside
+  window.onclick = function(event) {
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  };
+}
+
+
+
+// Function to buy NFT
+async function buyNFT(tokenId, price) {
+    try {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+        
+        // Convert price to Wei
+        const priceInWei = ethers.utils.parseEther(price);
+        
+        // Buy the NFT
+        const tx = await contract.buyNFT(tokenId, { value: priceInWei });
+        
+        // Wait for transaction confirmation
+        await tx.wait();
+        
+        //alert('NFT purchased successfully!');
+        showSuccessModal();
+        // Refresh the display
+        loadListedNFTsFromBlockchain();
+        
+    } catch (error) {
+        console.error('Error buying NFT:', error);
+        //alert('Failed to buy NFT. Please try again.');
+        showFailedModal();
+    }
+}
+
+
+async function placeBid(tokenId, currentBid) {
+    const { value: bidAmount } = await Swal.fire({
+        title: 'Place Your Bid',
+        input: 'text',
+        inputLabel: `Current highest bid: ${currentBid} ETH`,
+        inputPlaceholder: 'Enter your bid in ETH',
+        showCancelButton: true,
+        inputValidator: (value) => {
+            if (!value || isNaN(value) || parseFloat(value) <= parseFloat(currentBid)) {
+                return 'Please enter a valid bid amount higher than the current bid.';
+            }
+        }
+    });
+
+    if (!bidAmount) return;
+
+    try {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+        const account = await signer.getAddress();
+
+        const bidInWei = ethers.utils.parseEther(bidAmount);
+        const tx = await contract.placeBid(tokenId, { value: bidInWei });
+        await tx.wait();
+
+        // Store bid reference for user's collection (with blockchain tx hash)
+        const bidData = {
+            tokenId: tokenId,
+            amount: bidAmount,
+            txHash: tx.hash,
+            timestamp: Date.now(),
+            bidder: account
+        };
+        
+        // Store user's bid reference
+        const userBidsKey = `userBids_${account.toLowerCase()}`;
+        const userBids = JSON.parse(localStorage.getItem(userBidsKey) || '[]');
+        userBids.push(bidData);
+        localStorage.setItem(userBidsKey, JSON.stringify(userBids));
+
+        await Swal.fire({
+            icon: 'success',
+            title: 'Bid Placed!',
+            text: 'Your bid has been placed successfully.',
+            confirmButtonColor: '#3085d6'
+        });
+
+        loadListedNFTsFromBlockchain();
+
+    } catch (error) {
+        console.error('Error placing bid:', error);
+        await Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to place bid. Please try again.',
+            confirmButtonColor: '#d33'
+        });
+    }
+}
+
+
+// Function to end auction
+async function endAuction(tokenId) {
+    try {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+        
+        // End the auction
+        const tx = await contract.endAuction(tokenId);
+        
+        // Wait for transaction confirmation
+        await tx.wait();
+        
+        //alert('Auction ended successfully!');
+        showSuccessModalAuction();
+        // Refresh the display
+        loadListedNFTsFromBlockchain();
+        
+    } catch (error) {
+        console.error('Error ending auction:', error);
+        alert('Failed to end auction. Please try again.');
+    }
+}
+
+// Modify the window load event to call this function first
+window.addEventListener("DOMContentLoaded", function() {
+    initializeMarketplaceData();
+    loadListedNFTsFromBlockchain();
+    renderCollectionCards();
+    
+    // Connect wallet button setup
+    const connectWalletBtn = document.getElementById('connectWalletBtn');
+    const myCollectionLink = document.querySelector('a[href="my-collection.html"]');
+    
+    // Hide My Collection link by default
+    if (myCollectionLink) {
+        myCollectionLink.style.display = 'none';
+    }
+    
+    // Check if user is already connected (from localStorage)
+    const connectedAccount = localStorage.getItem('connectedWalletAccount');
+    if (connectedAccount) {
+        // Update button with account info
+        connectWalletBtn.textContent = connectedAccount.slice(0, 6) + '...' + connectedAccount.slice(-4);
+        connectWalletBtn.classList.add('bg-green-100');
+        connectWalletBtn.classList.add('text-green-600');
+        
+        // Show My Collection link
+        if (myCollectionLink) {
+            myCollectionLink.style.display = 'block';
+        }
+    }
+    
+    // Wallet connection handler
+    connectWalletBtn.addEventListener('click', function() {
+        if (typeof window.ethereum !== 'undefined') {
+            // Request account access
+            ethereum.request({ method: 'eth_requestAccounts' })
+            .then(accounts => {
+                // Connected successfully
+                const account = accounts[0];
+                connectWalletBtn.textContent = account.slice(0, 6) + '...' + account.slice(-4);
+                connectWalletBtn.classList.add('bg-green-100');
+                connectWalletBtn.classList.add('text-green-600');
+                
+                // Store connection in localStorage
+                localStorage.setItem('connectedWalletAccount', account);
+                
+                // Show My Collection link
+                if (myCollectionLink) {
+                    myCollectionLink.style.display = 'block';
+                }
+                
+                // Refresh NFTs from contract with connected account
+                //loadNFTsFromContract();
+                //loadListedNFTsForSale();
+                loadListedNFTsFromBlockchain();
+            })
+            .catch(error => {
+                console.error("User denied account access");
+                alert("Connection rejected. Please connect your wallet to use the marketplace.");
+            });
+        } else {
+            alert("Ethereum wallet not detected! Please install MetaMask or another wallet provider.");
+        }
+    });
+});
+
+function calculateTimeRemaining(endTimeInSeconds) {
+    const now = Math.floor(Date.now() / 1000);
+    const timeLeft = endTimeInSeconds - now;
+    
+    if (timeLeft <= 0) {
+        return "Auction ended";
+    }
+    
+    // Calculate days, hours, minutes, seconds
+    const days = Math.floor(timeLeft / (24 * 60 * 60));
+    const hours = Math.floor((timeLeft % (24 * 60 * 60)) / (60 * 60));
+    const minutes = Math.floor((timeLeft % (60 * 60)) / 60);
+    const seconds = timeLeft % 60;
+    
+    if (days > 0) {
+        return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    } else {
+        return `${hours}h ${minutes}m ${seconds}s`;
+    }
+}
+
+function updateAllCountdowns() {
+    const countdownElements = document.querySelectorAll('.auction-countdown');
+    countdownElements.forEach(element => {
+        const endTime = parseInt(element.getAttribute('data-end-time'));
+        const timerDisplay = element.querySelector('.countdown-timer');
+        timerDisplay.textContent = calculateTimeRemaining(endTime);
+        
+        // Add visual urgency for auctions ending soon
+        const now = Math.floor(Date.now() / 1000);
+        const timeLeft = endTime - now;
+        
+        if (timeLeft <= 3600) { // Last hour
+            timerDisplay.classList.add('urgent');
+        }
+        
+        if (timeLeft <= 0) {
+            element.parentElement.querySelector('.buy-btn').disabled = true;
+            element.parentElement.querySelector('.buy-btn').textContent = 'Auction Ended';
+        }
+    });
+}
+
+
+function initializeMarketplaceData() { 
+    // Check if collection items already exist in localStorage
+    if (!localStorage.getItem('collectionItems')) {
+        // Create some sample collections
+        const sampleCollections = [
+            {
+                name: 'Crypto Punks',
+                image: 'https://via.placeholder.com/100x100?text=CP',
+                floor: '5.5',
+                volume: 15400,
+                items: 10000,
+                change: 12.5,
+                isPositive: true
+            },
+            {
+                name: 'Bored Apes',
+                image: 'https://via.placeholder.com/100x100?text=BAYC',
+                floor: '8.2',
+                volume: 22100,
+                items: 10000,
+                change: 7.3,
+                isPositive: true
+            }
+            // Add more sample collections as needed
+        ];
+        
+        // Store in localStorage
+        localStorage.setItem('collectionItems', JSON.stringify(sampleCollections));
+    }
+}
+        // Function to render collection cards
+        function renderCollectionCards() {
+            const collectionContainer = document.getElementById('topCollections');
+            const collectionItems = JSON.parse(localStorage.getItem('collectionItems'));
+            
+            // Clear existing content
+            collectionContainer.innerHTML = '';
+            
+            // Add each collection card
+            collectionItems.forEach(collection => {
+                const collectionCard = document.createElement('div');
+                collectionCard.className = 'bg-white rounded-xl shadow-md overflow-hidden card-hover';
+                collectionCard.innerHTML = `
+                    <div class="p-5">
+                        <div class="flex items-center mb-4">
+                            <img src="${collection.image}" alt="Collection" class="w-16 h-16 rounded-full mr-4">
+                            <div>
+                                <h3 class="text-xl font-semibold">${collection.name}</h3>
+                                <p class="text-gray-600">Floor: ${collection.floor} ETH</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <div>
+                                <p class="text-gray-500">Volume</p>
+                                <p class="font-semibold">${collection.volume.toLocaleString()} ETH</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Items</p>
+                                <p class="font-semibold">${collection.items.toLocaleString()}</p>
+                            </div>
+                            <div>
+                                <p class="${collection.isPositive ? 'text-green-500' : 'text-red-500'}">${collection.isPositive ? '+' : '-'}${Math.abs(collection.change)}%</p>
+                                <p class="text-gray-500">24h</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                collectionContainer.appendChild(collectionCard);
+            });
+        }
+        
+
+        // Wallet connection functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMarketplaceData();
+            const connectWalletBtn = document.getElementById('connectWalletBtn');
+            const myCollectionLink = document.querySelector('a[href="my-collection.html"]');
+            
+            // Hide My Collection link by default
+            if (myCollectionLink) {
+                myCollectionLink.style.display = 'none';
+            }
+            
+            // Check if user is already connected (from localStorage)
+            const connectedAccount = localStorage.getItem('connectedWalletAccount');
+            if (connectedAccount) {
+                // Update button with account info
+                connectWalletBtn.textContent = connectedAccount.slice(0, 6) + '...' + connectedAccount.slice(-4);
+                connectWalletBtn.classList.add('bg-green-100');
+                connectWalletBtn.classList.add('text-green-600');
+                
+                // Show My Collection link
+                if (myCollectionLink) {
+                    myCollectionLink.style.display = 'block';
+                }
+            }
+            
+            // Wallet connection handler
+            connectWalletBtn.addEventListener('click', function() {
+                if (typeof window.ethereum !== 'undefined') {
+                    // Request account access
+                    ethereum.request({ method: 'eth_requestAccounts' })
+                    .then(accounts => {
+                        // Connected successfully
+                        const account = accounts[0];
+                        connectWalletBtn.textContent = account.slice(0, 6) + '...' + account.slice(-4);
+                        connectWalletBtn.classList.add('bg-green-100');
+                        connectWalletBtn.classList.add('text-green-600');
+                        
+                        // Store connection in localStorage
+                        localStorage.setItem('connectedWalletAccount', account);
+                        
+                        // Show My Collection link
+                        if (myCollectionLink) {
+                            myCollectionLink.style.display = 'block';
+                        }
+                    })
+                    .catch(error => {
+                        console.error("User denied account access");
+                        alert("Connection rejected. Please connect your wallet to use the marketplace.");
+                    });
+                } else {
+                    alert("Ethereum wallet not detected! Please install MetaMask or another wallet provider.");
+                }
+            });
+            
+ 
+            renderCollectionCards();
+        });
+    </script>
+</body>
+</html>
