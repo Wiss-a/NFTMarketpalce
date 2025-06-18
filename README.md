@@ -8,3 +8,4 @@ My collection:
 ![image](https://github.com/user-attachments/assets/ce10f1a6-8026-47f3-8937-651785675662)
 Current Active bids:
 ![image](https://github.com/user-attachments/assets/39fd16e3-78e6-4e7d-b4cc-b1e126c651f1)
+ 
